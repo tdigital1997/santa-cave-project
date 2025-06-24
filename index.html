@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Santa Cave Scene</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: black;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+  </head>
+  <body>
+    <script>
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x000000);
+
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 1, 5);
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      // Lighting
+      const light = new THREE.PointLight(0xffffff, 1, 100);
+      light.position.set(0, 5, 10);
+      scene.add(light);
+
+      // Floor
+      const floorGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
+      const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, side: THREE.DoubleSide });
+      const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+      floor.rotation.x = -Math.PI / 2;
+      scene.add(floor);
+
+      // Cave wall
+      const wallTexture = new THREE.TextureLoader().load('https://static1.squarespace.com/static/681257b53b65c40181d6ecd7/t/685ad6b8da194838ad215afd/1750783743253/%E2%80%94Pngtree%E2%80%94archeology+themed+background+cave+wall_15688896.png');
+      const wallMaterial = new THREE.MeshBasicMaterial({ map: wallTexture });
+      const wallGeometry = new THREE.PlaneGeometry(20, 10);
+      const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+      wall.position.set(0, 5, -5);
+      scene.add(wall);
+
+      // Stairs
+      const stairTexture = new THREE.TextureLoader().load('https://static1.squarespace.com/static/681257b53b65c40181d6ecd7/t/685ad7a86e661700adc73814/1750783919397/pngtree-stairs-medieval-steps-png-image_16372104.png');
+      const stairMaterial = new THREE.MeshBasicMaterial({ map: stairTexture, transparent: true });
+      const stairGeometry = new THREE.PlaneGeometry(10, 10);
+      const stairs = new THREE.Mesh(stairGeometry, stairMaterial);
+      stairs.position.set(0, 5, 0);
+      scene.add(stairs);
+
+      // Render loop
+      function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    </script>
+  </body>
+</html>
