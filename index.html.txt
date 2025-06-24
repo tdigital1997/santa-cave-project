@@ -1,9 +1,103 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Santa Cave</title>
+  <meta charset="UTF-8" />
+  <title>Santa Cave Entrance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #000;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    #cta {
+      position: absolute;
+      bottom: 5%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #fff;
+      color: #fff;
+      font-family: sans-serif;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #cta:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
 </head>
-<body style="background: black; color: white;">
-  <h1>Hello Cave</h1>
+<body>
+  <canvas id="bg"></canvas>
+  <div id="cta" onclick="window.location.href='worldmap.html'">ENTER THE CAVE</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
+  <script>
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 1.5, 8);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg'), antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    const light = new THREE.PointLight(0x88ccff, 2, 100);
+    light.position.set(0, 5, 5);
+    scene.add(new THREE.AmbientLight(0x404040));
+    scene.add(light);
+
+    // Cave wall background
+    const caveTexture = new THREE.TextureLoader().load("https://static1.squarespace.com/static/681257b53b65c40181d6ecd7/t/685ad6b8da194838ad215afd/1750783743253/%E2%80%94Pngtree%E2%80%94archeology+themed+background+cave+wall_15688896.png");
+    const caveGeo = new THREE.PlaneGeometry(20, 10);
+    const caveMat = new THREE.MeshBasicMaterial({ map: caveTexture });
+    const caveWall = new THREE.Mesh(caveGeo, caveMat);
+    caveWall.position.set(0, 2, -10);
+    scene.add(caveWall);
+
+    // Stair texture
+    const stairTexture = new THREE.TextureLoader().load("https://static1.squarespace.com/static/681257b53b65c40181d6ecd7/t/685ad7a86e661700adc73814/1750783919397/pngtree-stairs-medieval-steps-png-image_16372104.png");
+
+    for (let i = 0; i < 12; i++) {
+      const stairMat = new THREE.MeshBasicMaterial({ map: stairTexture, transparent: true });
+      const stair = new THREE.Mesh(new THREE.BoxGeometry(4, 0.5, 1.5), stairMat);
+      stair.position.set(0, -2 + i * 0.5, -i * 1.8);
+      scene.add(stair);
+    }
+
+    // Glyphs
+    const glyphMat = new THREE.SpriteMaterial({ color: 0x00ffff });
+    for (let i = 0; i < 8; i++) {
+      const glyph = new THREE.Sprite(glyphMat.clone());
+      glyph.scale.set(0.5, 0.5, 1);
+      glyph.position.set((Math.random() - 0.5) * 4, Math.random() * 5, -Math.random() * 8 - 2);
+      scene.add(glyph);
+    }
+
+    // Animation
+    function animate() {
+      requestAnimationFrame(animate);
+      renderer.render(scene, camera);
+    }
+
+    animate();
+
+    // Responsiveness
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
