@@ -6,63 +6,64 @@
     <style>
       html, body {
         margin: 0;
-        padding: 0;
         overflow: hidden;
-        background: black;
+        height: 100%;
+        background: #000;
       }
       canvas {
         display: block;
       }
     </style>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
   </head>
   <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r148/three.min.js"></script>
     <script>
+      // Scene setup
       const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000);
-
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 1, 5);
-
+      const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
       const renderer = new THREE.WebGLRenderer({ antialias: true });
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
       // Lighting
-      const light = new THREE.PointLight(0xffffff, 1, 100);
-      light.position.set(0, 5, 10);
-      scene.add(light);
+      const ambientLight = new THREE.AmbientLight(0xffffff, 1);
+      scene.add(ambientLight);
 
-      // Floor
-      const floorGeometry = new THREE.PlaneGeometry(100, 100, 32, 32);
-      const floorMaterial = new THREE.MeshStandardMaterial({ color: 0x222222, side: THREE.DoubleSide });
-      const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-      floor.rotation.x = -Math.PI / 2;
-      scene.add(floor);
+      // Texture loader
+      const loader = new THREE.TextureLoader();
 
-      // Cave wall
-      const wallTexture = new THREE.TextureLoader().load('https://static1.squarespace.com/static/681257b53b65c40181d6ecd7/t/685ad6b8da194838ad215afd/1750783743253/%E2%80%94Pngtree%E2%80%94archeology+themed+background+cave+wall_15688896.png');
-      const wallMaterial = new THREE.MeshBasicMaterial({ map: wallTexture });
-      const wallGeometry = new THREE.PlaneGeometry(20, 10);
-      const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-      wall.position.set(0, 5, -5);
-      scene.add(wall);
+      // Load your GitHub textures
+      const textureURL = (name) => `https://raw.githubusercontent.com/tdigital1997/santa-cave-project/main/${name}`;
+      const diffuse = loader.load(textureURL("Cave_Diffuse.png"));
+      const normal = loader.load(textureURL("Cave_Normal.png"));
+      const specular = loader.load(textureURL("Cave_Specular.png"));
+      const gloss = loader.load(textureURL("Cave_Glossiness.png"));
 
-      // Stairs
-      const stairTexture = new THREE.TextureLoader().load('https://static1.squarespace.com/static/681257b53b65c40181d6ecd7/t/685ad7a86e661700adc73814/1750783919397/pngtree-stairs-medieval-steps-png-image_16372104.png');
-      const stairMaterial = new THREE.MeshBasicMaterial({ map: stairTexture, transparent: true });
-      const stairGeometry = new THREE.PlaneGeometry(10, 10);
-      const stairs = new THREE.Mesh(stairGeometry, stairMaterial);
-      stairs.position.set(0, 5, 0);
-      scene.add(stairs);
+      // Apply textures to a basic geometry (like a sphere or cube for now)
+      const geometry = new THREE.SphereGeometry(15, 64, 64);
+      const material = new THREE.MeshStandardMaterial({
+        map: diffuse,
+        normalMap: normal,
+        roughnessMap: gloss,
+        metalnessMap: specular,
+        roughness: 0.8,
+        metalness: 0.3,
+      });
+      const sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
+
+      camera.position.z = 40;
 
       // Render loop
       function animate() {
         requestAnimationFrame(animate);
+        sphere.rotation.y += 0.002;
+        sphere.rotation.x += 0.001;
         renderer.render(scene, camera);
       }
       animate();
 
+      // Resize handling
       window.addEventListener('resize', () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
